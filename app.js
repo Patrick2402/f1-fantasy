@@ -4,10 +4,12 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const https = require('https');
 
 // Inicjalizacja aplikacji Express
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HTTPS_PORT = 443;
 
 // Konfiguracja middleware
 app.use(express.static(path.join(__dirname, 'public'))); 
@@ -536,6 +538,18 @@ app.get('/drivers/:season', async (req, res) => {
   }
 });
 
+// Konfiguracja HTTPS
+const httpsOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/f1insider.security-eng.pl/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/f1insider.security-eng.pl/fullchain.pem')
+};
+
+// Uruchom serwer HTTP, który przekierowuje na HTTPS
 app.listen(PORT, () => {
-  console.log(`Serwer uruchomiony na porcie ${PORT}`);
+  console.log(`Serwer HTTP uruchomiony na porcie ${PORT} (tylko do przekierowania)`);
+});
+
+// Uruchom serwer HTTPS
+https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
+  console.log(`Serwer HTTPS uruchomiony na porcie ${HTTPS_PORT}`);
 });
