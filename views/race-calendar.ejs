@@ -1,0 +1,139 @@
+<%- include('partials/header', { 
+    title: 'Kalendarz wyścigów', 
+    subtitle: 'Wyścigi na sezon ' + year,
+    currentPage: 'race-calendar'
+  }) %>
+  
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <div class="card-body">
+            <form action="/race-calendar" method="GET" class="d-flex justify-content-between align-items-center">
+              <label for="year" class="form-label me-3 mb-0">Wybierz sezon:</label>
+              <select name="year" id="year" class="form-select me-3" style="max-width: 150px;">
+                <% years.forEach(y => { %>
+                  <option value="<%= y %>" <%= y == year ? 'selected' : '' %>><%= y %></option>
+                <% }); %>
+              </select>
+              <button type="submit" class="btn btn-primary">Pokaż</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-md-10 offset-md-1">
+        <% if (!races || races.length === 0) { %>
+          <div class="alert alert-info">
+            <h4 class="alert-heading">Brak danych!</h4>
+            <p>Nie znaleziono wyścigów dla sezonu <%= year %>. Dane dla przyszłych sezonów mogą nie być jeszcze dostępne w API.</p>
+            <hr>
+            <p class="mb-0">Sprawdź ponownie później lub wybierz inny sezon.</p>
+          </div>
+        <% } else { %>
+          <div class="row">
+            <% 
+              const today = new Date();
+              let nextRaceIndex = -1;
+              
+              // Znajdź indeks następnego wyścigu
+              for (let i = 0; i < races.length; i++) {
+                const raceDate = new Date(races[i].date + 'T' + (races[i].time || '00:00:00'));
+                if (raceDate > today) {
+                  nextRaceIndex = i;
+                  break;
+                }
+              }
+            %>
+            
+            <% races.forEach((race, index) => { 
+              const raceDate = new Date(race.date + 'T' + (race.time || '00:00:00'));
+              const isPastRace = raceDate < today;
+              const isNextRace = index === nextRaceIndex;
+              
+              // Format date
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              const formattedDate = raceDate.toLocaleDateString('pl-PL', options);
+            %>
+              <div class="col-md-6 col-lg-4">
+                <div class="card race-card <%= isPastRace ? 'past-race' : '' %> <%= isNextRace ? 'next-race' : '' %>">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">Runda <%= race.round %></span>
+                    <% if (isPastRace) { %>
+                      <span class="badge bg-secondary">Zakończony</span>
+                    <% } else if (isNextRace) { %>
+                      <span class="badge bg-success">Następny wyścig</span>
+                    <% } else { %>
+                      <span class="badge bg-info">Nadchodzący</span>
+                    <% } %>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title"><%= race.name %></h5>
+                    <h6 class="card-subtitle mb-2"><%= race.circuit %></h6>
+                    <p class="card-text">
+                      <strong>Lokalizacja:</strong> <%= race.locality %>, <%= race.country %><br>
+                      <strong>Data:</strong> <%= formattedDate %><br>
+                      <% if (race.time) { %>
+                        <strong>Czas:</strong> <%= race.time.substring(0, 5) %> UTC
+                      <% } %>
+                    </p>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between">
+                    <% if (isPastRace) { %>
+                      <a href="/fetch-race-results/<%= year %>/<%= race.round %>" class="btn btn-outline-primary btn-sm fetch-results">
+                        Pobierz wyniki
+                      </a>
+                    <% } %>
+                    <a href="https://www.formula1.com/en/racing/<%= year %>/<%= race.locality.replace(/\s+/g, '-').toLowerCase() %>.html" 
+                       target="_blank" class="btn btn-outline-secondary btn-sm">
+                      Szczegóły F1
+                    </a>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('partials/footer') %>
+  
+  <script>
+    // JavaScript do obsługi przycisków "Pobierz wyniki"
+    document.addEventListener('DOMContentLoaded', function() {
+      const fetchButtons = document.querySelectorAll('.fetch-results');
+      
+      fetchButtons.forEach(button => {
+        button.addEventListener('click', async function(e) {
+          e.preventDefault();
+          
+          const url = this.getAttribute('href');
+          this.innerHTML = 'Pobieranie...';
+          this.disabled = true;
+          
+          try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+              alert(`Sukces! ${data.message}`);
+              // Odśwież stronę wyników
+              window.location.href = '/leaderboard';
+            } else {
+              alert(`Błąd: ${data.error}`);
+              this.innerHTML = 'Pobierz wyniki';
+              this.disabled = false;
+            }
+          } catch (error) {
+            alert('Wystąpił błąd podczas pobierania wyników.');
+            this.innerHTML = 'Pobierz wyniki';
+            this.disabled = false;
+          }
+        });
+      });
+    });
+  </script>

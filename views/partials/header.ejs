@@ -1,0 +1,51 @@
+<!-- views/partials/header.ejs - Nagłówek bez dark mode toggle -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - F1 Fantasy</title>
+  
+  <!-- Font Awesome dla ikon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Własne style z ciemnym motywem -->
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- META dla trybu kolorów -->
+  <meta name="color-scheme" content="dark">
+</head>
+<body>
+  <div class="container">
+    <header class="text-center mb-5 fade-in">
+      <h1 class="display-4 fw-bold">F1 Fantasy</h1>
+      <p class="lead"><%= subtitle || 'Śledzenie wyników F1' %></p>
+      
+      <div class="nav-container mt-4">
+        <a href="/" class="nav-link <%= currentPage === 'home' ? 'active' : '' %>">
+          <i class="fas fa-home me-1"></i> Strona główna
+        </a>
+        <a href="/add-race" class="nav-link <%= currentPage === 'add-race' ? 'active' : '' %>">
+          <i class="fas fa-plus-circle me-1"></i> Dodaj wyścig
+        </a>
+        <a href="/leaderboard" class="nav-link <%= currentPage === 'leaderboard' ? 'active' : '' %>">
+          <i class="fas fa-trophy me-1"></i> Tabela wyników
+        </a>
+        <a href="/race-results" class="nav-link <%= currentPage === 'race-results' ? 'active' : '' %>">
+          <i class="fas fa-history me-1"></i> Historia wyścigów
+        </a>
+        <a href="/race-calendar" class="nav-link <%= currentPage === 'race-calendar' ? 'active' : '' %>">
+          <i class="fas fa-calendar-alt me-1"></i> Kalendarz wyścigów
+        </a>
+      </div>
+    </header>
+
+    <main class="fade-in" style="animation-delay: 0.1s;">

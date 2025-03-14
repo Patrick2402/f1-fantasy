@@ -1,0 +1,31 @@
+<%- include('partials/header', { 
+    title: 'Błąd', 
+    subtitle: 'Wystąpił błąd podczas przetwarzania żądania',
+    currentPage: ''
+  }) %>
+  
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0 text-danger">Wystąpił błąd</h4>
+        </div>
+        <div class="card-body">
+          <p class="mb-3"><%= message %></p>
+          
+          <% if (error) { %>
+            <div class="alert alert-secondary">
+              <pre class="mb-0"><%= JSON.stringify(error, null, 2) %></pre>
+            </div>
+          <% } %>
+          
+          <div class="text-center mt-4">
+            <a href="javascript:history.back()" class="btn btn-secondary me-2">Wróć</a>
+            <a href="/" class="btn btn-primary">Strona główna</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('partials/footer') %>

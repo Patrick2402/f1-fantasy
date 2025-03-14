@@ -1,0 +1,52 @@
+<%- include('partials/header', { 
+    title: 'Dodaj wyścig (stary sposób)', 
+    subtitle: 'Wprowadź punkty wyścigu bezpośrednio',
+    currentPage: 'add-race'
+  }) %>
+  
+  <div class="row mb-5">
+    <div class="col-md-10 offset-md-1">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Wprowadź wyniki wyścigu</h4>
+        </div>
+        <div class="card-body">
+          <form action="/save-race" method="POST">
+            <div class="mb-4">
+              <label for="raceName" class="form-label">Nazwa wyścigu</label>
+              <input type="text" class="form-control" id="raceName" name="raceName" required placeholder="np. GP Monaco 2025">
+            </div>
+  
+            <div class="table-responsive">
+              <table class="race-results-table">
+                <thead>
+                  <tr>
+                    <th>Kierowca</th>
+                    <th>Aktualne punkty</th>
+                    <th>Punkty z tego wyścigu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% drivers.forEach(driver => { %>
+                    <tr>
+                      <td class="driver-cell"><%= driver %></td>
+                      <td class="points-cell"><%= driverPoints[driver] || 0 %></td>
+                      <td>
+                        <input type="number" class="form-control" name="<%= driver %>" min="0" value="0">
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+  
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-success btn-lg">Zapisz wyniki</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('partials/footer') %>

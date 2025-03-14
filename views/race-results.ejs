@@ -1,0 +1,129 @@
+<%- include('partials/header', { 
+    title: 'Historia wyścigów', 
+    subtitle: 'Wyniki wszystkich rozegranych wyścigów',
+    currentPage: 'race-results'
+  }) %>
+  
+  <div class="container">
+    <% if (races.length === 0) { %>
+      <div class="alert alert-info text-center">
+        <h4>Brak danych o wyścigach</h4>
+        <p>Dodaj swój pierwszy wyścig, aby zobaczyć wyniki.</p>
+      </div>
+    <% } else { %>
+      <% races.forEach(race => { %>
+        <div class="race-container">
+          <div class="race-header">
+            <h3><%= race.name %></h3>
+            <span class="race-date"><%= new Date(race.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+          </div>
+          
+          <table class="race-results-table">
+            <thead>
+              <tr>
+                <th>Poz.</th>
+                <th>Kierowca</th>
+                <th>Kategoria</th>
+                <th>Punkty</th>
+                <th>Szczegóły punktacji</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% 
+                // Przekształć wyniki wyścigu z obiektu na tablicę
+                const raceResults = [];
+                Object.keys(race.positions).forEach(driver => {
+                  const position = race.positions[driver];
+                  if (position) {
+                    let category = "";
+                    let categoryClass = "";
+                    if (drivers["Top Drivers"].includes(driver)) {
+                      category = "Top Drivers";
+                      categoryClass = "category-top";
+                    }
+                    else if (drivers["Midfield Drivers"].includes(driver)) {
+                      category = "Midfield Drivers";
+                      categoryClass = "category-midfield";
+                    }
+                    else if (drivers["Rookies"].includes(driver)) {
+                      category = "Rookies";
+                      categoryClass = "category-rookie";
+                    }
+                    
+                    // Oblicz punkty za ten wyścig
+                    let points = 0;
+                    if (position <= 3) points += pointsSystem[position];
+                    
+                    // Dodatkowe punkty za kategorie
+                    let bonusPoints = 0;
+                    const isInTop10 = position <= 10;
+                    
+                    if (isInTop10 && category === "Midfield Drivers") bonusPoints += 1;
+                    if (isInTop10 && category === "Rookies") bonusPoints += 2;
+                    
+                    // Punkt za najszybsze okrążenie
+                    const fastestLapPoint = (race.fastestLap === driver) ? 1 : 0;
+                    
+                    const totalPoints = points + bonusPoints + fastestLapPoint;
+                    
+                    raceResults.push({
+                      driver,
+                      position,
+                      category,
+                      categoryClass,
+                      points: totalPoints,
+                      details: {
+                        positionPoints: points,
+                        bonusPoints,
+                        fastestLap: fastestLapPoint
+                      },
+                      hasFastestLap: race.fastestLap === driver
+                    });
+                  }
+                });
+                
+                // Sortuj wyniki według pozycji
+                raceResults.sort((a, b) => a.position - b.position);
+              %>
+              
+              <% if (raceResults.length === 0) { %>
+                <tr class="no-result-row">
+                  <td colspan="5">Brak wyników dla tego wyścigu</td>
+                </tr>
+              <% } else { %>
+                <% raceResults.forEach(result => { %>
+                  <tr class="position-<%= result.position %> position-row-<%= result.position <= 3 ? result.position : '' %>">
+                    <td class="position-cell"><%= result.position %></td>
+                    <td class="driver-cell">
+                      <%= result.driver %>
+                      <% if (result.hasFastestLap) { %>
+                        <span class="fastest-lap-indicator">FL</span>
+                      <% } %>
+                    </td>
+                    <td class="category-cell <%= result.categoryClass %>"><%= result.category %></td>
+                    <td class="points-cell"><%= result.points %></td>
+                    <td class="points-details-cell">
+                      <% if (result.details.positionPoints > 0) { %>
+                        <%= result.details.positionPoints %> za pozycję
+                      <% } %>
+                      <% if (result.details.bonusPoints > 0) { %>
+                        + <%= result.details.bonusPoints %> bonus za kategorię
+                      <% } %>
+                      <% if (result.details.fastestLap > 0) { %>
+                        + <%= result.details.fastestLap %> za najszybsze okrążenie
+                      <% } %>
+                      <% if (result.details.positionPoints === 0 && result.details.bonusPoints === 0 && result.details.fastestLap === 0) { %>
+                        -
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+  
+  <%- include('partials/footer') %>

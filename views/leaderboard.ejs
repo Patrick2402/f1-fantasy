@@ -1,0 +1,104 @@
+<%- include('partials/header', { 
+  title: 'Tabela wyników', 
+  subtitle: 'Ranking użytkowników i kierowców',
+  currentPage: 'leaderboard'
+}) %>
+
+<div class="row mb-5">
+  <div class="col-md-10 offset-md-1">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Ranking użytkowników</h4>
+      </div>
+      <div class="card-body">
+        <% if (leaderboard.length === 0) { %>
+          <div class="alert alert-info">
+            Brak danych. Dodaj swój wybór kierowców, aby zobaczyć ranking.
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="race-results-table">
+              <thead>
+                <tr>
+                  <th>Pozycja</th>
+                  <th>Użytkownik</th>
+                  <th>Top Driver</th>
+                  <th>Midfield Driver</th>
+                  <th>Rookie</th>
+                  <th>Suma punktów</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% leaderboard.forEach((user, index) => { %>
+                  <tr class="<%= index < 3 ? 'position-row-' + (index + 1) : '' %>">
+                    <td class="position-cell"><%= index + 1 %></td>
+                    <td class="driver-cell">
+                      <i class="fas fa-user me-2"></i>
+                      <%= user.username %>
+                    </td>
+                    <td>
+                      <i class="fas fa-medal me-1 category-top"></i>
+                      <%= user.topDriver %> (<%= driverPoints[user.topDriver] || 0 %> pkt)
+                    </td>
+                    <td>
+                      <i class="fas fa-car me-1 category-midfield"></i>
+                      <%= user.midfieldDriver %> (<%= driverPoints[user.midfieldDriver] || 0 %> pkt)
+                    </td>
+                    <td>
+                      <i class="fas fa-star me-1 category-rookie"></i>
+                      <%= user.rookie %> (<%= driverPoints[user.rookie] || 0 %> pkt)
+                    </td>
+                    <td class="points-cell"><%= user.totalPoints %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-5">
+  <div class="col-md-10 offset-md-1">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Ranking kierowców</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="race-results-table">
+            <thead>
+              <tr>
+                <th>Pozycja</th>
+                <th>Kierowca</th>
+                <th>Punkty</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% 
+                const sortedDrivers = Object.entries(driverPoints)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([driver, points], index) => ({
+                    position: index + 1,
+                    driver,
+                    points
+                  }));
+              %>
+              <% sortedDrivers.forEach(item => { %>
+                <tr class="<%= item.position <= 3 ? 'position-row-' + item.position : '' %>">
+                  <td class="position-cell"><%= item.position %></td>
+                  <td class="driver-cell"><%= item.driver %></td>
+                  <td class="points-cell"><%= item.points %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

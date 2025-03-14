@@ -1,0 +1,139 @@
+<!-- views/index.ejs - Strona główna z wyborem kierowców -->
+<%- include('partials/header', { 
+    title: 'Wybór kierowców', 
+    subtitle: 'Wybierz swoich kierowców i śledź ich wyniki!',
+    currentPage: 'home'
+  }) %>
+  
+  <div class="row mb-5">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Wybierz swoich kierowców</h4>
+        </div>
+        <div class="card-body">
+          <form action="/select-drivers" method="POST">
+            <div class="mb-3">
+              <label for="username" class="form-label">Twoja nazwa użytkownika</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" class="form-control" id="username" name="username" required>
+              </div>
+            </div>
+  
+            <div class="mb-4">
+              <label class="form-label fw-bold">Wybierz kierowcę z Top Drivers</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-medal"></i></span>
+                <select name="topDriver" class="form-select" required>
+                  <option value="">-- Wybierz kierowcę --</option>
+                  <% drivers["Top Drivers"].forEach(driver => { %>
+                    <option value="<%= driver %>"><%= driver %> (<%= driverPoints[driver] || 0 %> pkt)</option>
+                  <% }); %>
+                </select>
+              </div>
+            </div>
+  
+            <div class="mb-4">
+              <label class="form-label fw-bold">Wybierz kierowcę z Midfield Drivers</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-car"></i></span>
+                <select name="midfieldDriver" class="form-select" required>
+                  <option value="">-- Wybierz kierowcę --</option>
+                  <% drivers["Midfield Drivers"].forEach(driver => { %>
+                    <option value="<%= driver %>"><%= driver %> (<%= driverPoints[driver] || 0 %> pkt)</option>
+                  <% }); %>
+                </select>
+              </div>
+            </div>
+  
+            <div class="mb-4">
+              <label class="form-label fw-bold">Wybierz kierowcę z Rookies</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-star"></i></span>
+                <select name="rookie" class="form-select" required>
+                  <option value="">-- Wybierz kierowcę --</option>
+                  <% drivers["Rookies"].forEach(driver => { %>
+                    <option value="<%= driver %>"><%= driver %> (<%= driverPoints[driver] || 0 %> pkt)</option>
+                  <% }); %>
+                </select>
+              </div>
+            </div>
+  
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i> Zapisz wybór
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <% if (Object.keys(userSelections).length > 0) { %>
+    <div class="row mb-5">
+      <div class="col-md-10 offset-md-1">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Aktualne wybory użytkowników</h4>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Użytkownik</th>
+                    <th>Top Driver</th>
+                    <th>Midfield Driver</th>
+                    <th>Rookie</th>
+                    <th>Punkty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% Object.entries(userSelections).forEach(([username, selection]) => { %>
+                    <tr>
+                      <td>
+                        <i class="fas fa-user me-2"></i>
+                        <%= username %>
+                      </td>
+                      <td>
+                        <i class="fas fa-medal me-1 text-warning"></i>
+                        <%= selection.topDriver %> (<%= driverPoints[selection.topDriver] || 0 %> pkt)
+                      </td>
+                      <td>
+                        <i class="fas fa-car me-1 text-primary"></i>
+                        <%= selection.midfieldDriver %> (<%= driverPoints[selection.midfieldDriver] || 0 %> pkt)
+                      </td>
+                      <td>
+                        <i class="fas fa-star me-1 text-success"></i>
+                        <%= selection.rookie %> (<%= driverPoints[selection.rookie] || 0 %> pkt)
+                      </td>
+                      <td>
+                        <strong><%= selection.totalPoints %></strong>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <div class="row mb-4">
+    <div class="col-md-12 text-center">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Zasady punktacji:</strong> 
+        Za podium (1-3 miejsce): 3-2-1 punktów. 
+        Kierowca Midfield w top 10: +1 punkt. 
+        Rookie w top 10: +2 punkty.
+        Najszybsze okrążenie: +1 punkt.
+      </div>
+    </div>
+  </div>
+  
+  <%- include('partials/footer') %>

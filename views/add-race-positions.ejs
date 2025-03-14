@@ -1,0 +1,70 @@
+<%- include('partials/header', { 
+  title: 'Dodaj wyścig', 
+  subtitle: 'Wprowadź wyniki wyścigu',
+  currentPage: 'add-race'
+}) %>
+
+<div class="row mb-5">
+  <div class="col-md-10 offset-md-1">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Wprowadź wyniki wyścigu</h4>
+      </div>
+      <div class="card-body">
+        <form action="/save-race-positions" method="POST">
+          <div class="mb-4">
+            <label for="raceName" class="form-label">Nazwa wyścigu</label>
+            <input type="text" class="form-control" id="raceName" name="raceName" required placeholder="np. GP Monaco 2025">
+          </div>
+          
+          <div class="mb-4">
+            <label for="raceDate" class="form-label">Data wyścigu</label>
+            <input type="date" class="form-control" id="raceDate" name="raceDate" required>
+          </div>
+
+          <p class="alert alert-info">
+            Wprowadź pozycję dla każdego kierowcy (1-20). Pozostaw puste pole, jeśli kierowca nie ukończył wyścigu.
+          </p>
+
+          <div class="table-responsive">
+            <table class="race-results-table">
+              <thead>
+                <tr>
+                  <th>Kierowca</th>
+                  <th>Aktualne punkty</th>
+                  <th>Pozycja w wyścigu</th>
+                  <th>Najszybsze okrążenie</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% drivers.forEach(driver => { %>
+                  <tr>
+                    <td class="driver-cell"><%= driver %></td>
+                    <td class="points-cell"><%= driverPoints[driver] || 0 %></td>
+                    <td>
+                      <input type="number" class="form-control" name="positions[<%= driver %>]" min="1" max="20">
+                    </td>
+                    <td>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="fastestLap" value="<%= driver %>" id="fastest_<%= driver.replace(/\s+/g, '_') %>">
+                        <label class="form-check-label" for="fastest_<%= driver.replace(/\s+/g, '_') %>">
+                          Najszybsze okrążenie
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success btn-lg">Zapisz wyniki</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
