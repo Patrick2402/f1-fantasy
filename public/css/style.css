@@ -18,16 +18,24 @@
   --nav-active: #4dabf7;
   --shadow-color: rgba(0, 0, 0, 0.5);
   --hover-bg: #2c2c2c;
+  
+  /* Poprawione kolory dla tabeli */
   --table-header-bg: #212529;
   --table-header-text: #ffffff;
   --table-border: #444444;
   --table-row-odd: rgba(255, 255, 255, 0.05);
-  --table-row-hover: rgba(255, 255, 255, 0.075);
+  --table-row-hover: rgba(77, 171, 247, 0.15); /* Jaśniejszy niebieski dla lepszego kontrastu */
+  --table-row-hover-text: #ffffff; /* Biały tekst dla lepszego kontrastu na hover */
   
   /* Kolory podium */
   --gold: #ffdc73;
   --silver: #e0e0e0;
   --bronze: #dd9f5c;
+  
+  /* Kolory kategorii kierowców */
+  --top-driver-color: #ffdc73;
+  --midfield-driver-color: #4dabf7;
+  --rookie-driver-color: #40c057;
 }
 
 /* Podstawowe style */
@@ -79,41 +87,62 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-color);
 }
 
-/* Tabele */
+/* Tabele - główna sekcja z poprawkami */
 .table {
   color: var(--text-color);
   border-color: var(--table-border);
+  margin-bottom: 1.5rem;
 }
 
 .table thead th {
   background-color: var(--table-header-bg);
   color: var(--table-header-text);
   border-color: var(--table-border);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 12px 15px;
 }
 
+.table tbody td {
+  padding: 10px 15px;
+  border-color: var(--table-border);
+  vertical-align: middle;
+}
+
+/* Pasy w tabeli */
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: var(--table-row-odd);
 }
 
+/* Poprawiony styl hover dla tabeli */
 .table-hover tbody tr:hover {
-  background-color: var(--table-row-hover);
+  background-color: var(--table-row-hover) !important;
+  color: var(--table-row-hover-text) !important;
 }
 
-/* Ulepszenie tabel aby były czytelne */
-.table {
-  border-collapse: separate;
-  border-spacing: 0;
+/* Zapewnienie kontrastu dla buttonów podczas hover na wierszu */
+.table-hover tbody tr:hover .btn {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-.table th,
-.table td {
-  border-color: var(--table-border);
+/* Poprawa dla tabeli ciemnej */
+.table-dark {
+  background-color: var(--table-header-bg);
+  color: var(--table-header-text);
 }
 
 .table-dark th,
 .table-dark td {
-  background-color: var(--table-header-bg);
-  color: var(--table-header-text);
+  border-color: var(--table-border);
+}
+
+/* Specjalny styl hover dla tabeli ciemnej */
+.table-dark.table-hover tbody tr:hover {
+  background-color: var(--table-row-hover) !important;
+  color: var(--table-row-hover-text) !important;
 }
 
 /* Formularze */
@@ -133,6 +162,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Etykiety formularzy */
 label.form-label {
   color: var(--text-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
 /* Ikony w grupach wejściowych */
@@ -156,10 +187,15 @@ label.form-label {
   color: #fff;
 }
 
+.btn-primary:hover {
+  background-color: #3b98e0;
+  border-color: #3b98e0;
+}
+
 .btn-secondary {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
-  color: #fff;
+  color: #212529;
 }
 
 .btn-success {
@@ -189,6 +225,7 @@ label.form-label {
 /* Alerty */
 .alert {
   border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
 }
 
 .alert-info {
@@ -226,109 +263,12 @@ label.form-label {
   border-color: var(--nav-active);
 }
 
-/* Karty wyścigów */
-.race-card {
-  margin-bottom: 1.5rem;
-}
-
-/* Karty kierowców */
-.driver-card {
-  margin-bottom: 1rem;
-  transition: transform 0.2s ease;
-}
-
-.driver-card:hover {
-  transform: translateY(-5px);
-}
-
-/* Stopka */
-footer {
-  color: var(--text-color);
-  opacity: 0.7;
-}
-
-/* Dla szczegółów punktacji */
-.table td small {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Nadpisanie stylów Bootstrap dla trybu ciemnego */
-.bg-info {
-  background-color: var(--info-color) !important;
-}
-
-.bg-secondary {
-  background-color: var(--secondary-color) !important;
-}
-
-.table-dark {
-  background-color: var(--table-header-bg);
-  color: var(--table-header-text);
-}
-
-.top-position {
-  background-color: var(--gold);
-  color: #000;
-}
-
-/* Specjalne style dla ciemnych tabel */
-.table-striped > tbody > tr:nth-of-type(odd) > * {
-  color: var(--text-color);
-}
-
-.table-striped > tbody > tr:nth-of-type(even) > * {
-  color: var(--text-color);
-}
-
-/* Responsywność */
-@media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-  }
-}
-
-/* Styl dla animacji */
-.fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Dodatkowe style dla tabeli wyników wyścigu */
-
-/* Nagłówek wyścigu */
-.race-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #2c2c2c;
-  border-radius: 8px 8px 0 0;
-  padding: 12px 20px;
-  margin-bottom: 0;
-  border-bottom: 2px solid #3a3a3a;
-}
-
-.race-header h3 {
-  margin: 0;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.race-header .race-date {
-  font-size: 0.9rem;
-  color: #aaaaaa;
-  font-weight: 500;
-}
-
-/* Tabela wyników */
+/* Tabela wyników wyścigu - poprawiona sekcja */
 .race-results-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0.5rem;
   overflow: hidden;
   margin-bottom: 2rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -355,24 +295,26 @@ footer {
   border-bottom: none;
 }
 
+/* Poprawiony styl hover dla tabeli wyścigów */
 .race-results-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(77, 171, 247, 0.15) !important; /* Jaśniejszy niebieski */
+  color: #ffffff !important; /* Biały tekst dla kontrastu */
 }
 
-/* Różne kolory dla różnych pozycji */
+/* Wyróżnienie wierszy podium */
 .position-row-1 {
-  background-color: rgba(255, 220, 115, 0.15) !important;
+  background-color: rgba(255, 220, 115, 0.15);
 }
 
 .position-row-2 {
-  background-color: rgba(224, 224, 224, 0.1) !important;
+  background-color: rgba(224, 224, 224, 0.1);
 }
 
 .position-row-3 {
-  background-color: rgba(221, 159, 92, 0.1) !important;
+  background-color: rgba(221, 159, 92, 0.1);
 }
 
-/* Kolumna pozycji */
+/* Pozycja */
 .position-cell {
   font-weight: 700;
   font-size: 1.1rem;
@@ -381,53 +323,59 @@ footer {
 }
 
 .position-1 .position-cell {
-  color: #ffdc73;
+  color: var(--gold);
 }
 
 .position-2 .position-cell {
-  color: #e0e0e0;
+  color: var(--silver);
 }
 
 .position-3 .position-cell {
-  color: #dd9f5c;
+  color: var(--bronze);
 }
 
-/* Kolumna kierowcy */
+/* Komórki tabeli */
 .driver-cell {
   font-weight: 500;
 }
 
-/* Kategorie kierowców */
 .category-cell {
   font-size: 0.85rem;
   width: 150px;
 }
 
 .category-top {
-  color: #ffdc73;
+  color: var(--top-driver-color);
 }
 
 .category-midfield {
-  color: #4dabf7;
+  color: var(--midfield-driver-color);
 }
 
 .category-rookie {
-  color: #40c057;
+  color: var(--rookie-driver-color);
 }
 
-/* Punkty */
 .points-cell {
   font-weight: 700;
   text-align: center;
   width: 100px;
 }
 
-.points-details-cell {
-  color: #aaaaaa;
-  font-size: 0.85rem;
+/* Typ wyścigu - nowy styl */
+.race-type {
+  font-weight: 600;
 }
 
-/* Najszybsze okrążenie */
+.race-type:contains('Sprint') {
+  color: var(--warning-color);
+}
+
+.race-type:contains('Grand Prix') {
+  color: var(--primary-color);
+}
+
+/* Dodatkowe klasy pomocnicze */
 .fastest-lap-indicator {
   display: inline-block;
   background-color: #ff4d4f;
@@ -440,16 +388,12 @@ footer {
   text-transform: uppercase;
 }
 
-/* Stylizacja dla braku kierowców (puste miejsca) */
-.no-result-row td {
-  padding: 30px;
-  text-align: center;
-  color: #888888;
-  font-style: italic;
-}
-
 /* Responsywność */
 @media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+  }
+  
   .race-results-table {
     font-size: 0.9rem;
   }
@@ -458,9 +402,104 @@ footer {
   .race-results-table td {
     padding: 8px 10px;
   }
-  
-  .category-cell,
-  .points-details-cell {
-    display: none;  
-  }
+}
+
+/* Styl dla rozwijanych detali wyścigu */
+.details-row {
+  background-color: #2c3034 !important;
+}
+
+.details-container {
+  background-color: #2c3034;
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+  padding: 1.5rem;
+}
+
+/* Tabela wewnętrzna ze szczegółami */
+.details-container .table {
+  margin-bottom: 0;
+}
+
+.details-container .table th {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+  border-color: var(--table-border);
+}
+
+/* Kolory dla kategorii kierowców w szczegółach */
+.details-container .badge {
+  font-weight: 600;
+  padding: 0.25em 0.5em;
+  margin-left: 5px;
+}
+
+.badge.bg-success {
+  background-color: var(--success-color) !important;
+}
+
+/* Sprint vs Grand Prix */
+.badge-sprint {
+  background-color: var(--warning-color);
+  color: #212529;
+}
+
+.badge-grandprix {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* Poprawiony CSS dla efektu hover w tabeli */
+
+/* Najpierw resetujemy style hover dla wszystkich tabel */
+.table-hover tbody tr:hover,
+.table tbody tr:hover,
+.table-dark tbody tr:hover,
+.table-dark.table-hover tbody tr:hover,
+.race-results-table tbody tr:hover {
+  background-color: rgba(77, 171, 247, 0.2) !important; /* Jaśniejszy niebieski z większą przezroczystością */
+  color: #FFFFFF !important; /* Wyraźny biały tekst */
+}
+
+/* Upewniamy się, że wszystkie elementy w komórkach tabeli są widoczne podczas hover */
+.table-hover tbody tr:hover td,
+.table tbody tr:hover td,
+.table-dark tbody tr:hover td,
+.table-dark.table-hover tbody tr:hover td,
+.race-results-table tbody tr:hover td {
+  color: #FFFFFF !important; /* Wyraźny biały tekst dla wszystkich komórek */
+}
+
+/* Przyciski w tabeli podczas hover */
+.table-hover tbody tr:hover .btn,
+.table tbody tr:hover .btn,
+.table-dark tbody tr:hover .btn,
+.race-results-table tbody tr:hover .btn {
+  color: #FFFFFF !important;
+  background-color: #2b87d9 !important; /* Ciemniejszy niebieski dla przycisków */
+  border-color: #FFFFFF !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+}
+
+/* Dla rozwijanych wierszy */
+.collapse.show {
+  background-color: #1e1e1e !important; /* Ciemne tło dla rozwijanych sekcji */
+}
+
+/* Dla nagłówków kolumn */
+th {
+  background-color: #212529 !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+
+/* Punkty w tabeli */
+.points-cell {
+  font-weight: 700 !important;
+}
+
+/* Typ wyścigu */
+.race-type {
+  font-weight: 600 !important;
 }
