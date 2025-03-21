@@ -22,6 +22,14 @@
             <input type="date" class="form-control" id="raceDate" name="raceDate" required>
           </div>
 
+          <div class="mb-4">
+            <label for="raceType" class="form-label">Typ wyścigu</label>
+            <select class="form-control" id="raceType" name="raceType" required>
+              <option value="grandprix">Grand Prix (Top 10 punktuje)</option>
+              <option value="sprint">Sprint (Top 8 punktuje)</option>
+            </select>
+          </div>
+
           <p class="alert alert-info">
             Wprowadź pozycję dla każdego kierowcy (1-20). Pozostaw puste pole, jeśli kierowca nie ukończył wyścigu.
           </p>

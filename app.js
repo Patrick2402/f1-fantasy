@@ -116,20 +116,15 @@ async function fetchRaceSchedule(year) {
   }
 }
 
-// Nowy system punktacji dla podium (tylko 3 pierwsze miejsca otrzymują punkty)
 const pointsSystem = {
   1: 3,  // 1. miejsce - 3 punkty
   2: 2,  // 2. miejsce - 2 punkty 
   3: 1   // 3. miejsce - 1 punkt
-  // Miejsca 4-10 nie otrzymują punktów w podstawowym systemie
 };
 
-// Funkcja do mapowania imion i nazwisk kierowców z API do naszej aplikacji
+
 function mapDriverName(apiDriverName) {
-  // Stwórz odwzorowanie z nazwisk z API do nazwisk w naszej aplikacji
   const driverMapping = {
-    // Przykłady mapowania (dostosuj według potrzeb)
-    // Format: "Nazwisko z API": "Nazwisko w naszej aplikacji"
     "verstappen": "Max Verstappen",
     "hamilton": "Lewis Hamilton",
     "leclerc": "Charles Leclerc",
@@ -172,11 +167,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// Zapisywanie wybranych kierowców dla użytkownika
 app.post('/select-drivers', (req, res) => {
   const { username, topDriver, midfieldDriver, rookie } = req.body;
   
-  // Walidacja danych
   if (!username || !topDriver || !midfieldDriver || !rookie) {
     return res.status(400).json({ error: 'Wszystkie pola są wymagane' });
   }
@@ -193,7 +186,6 @@ app.post('/select-drivers', (req, res) => {
     return res.status(400).json({ error: 'Nieprawidłowy kierowca z grupy Rookies' });
   }
   
-  // Zapisz wybory użytkownika
   userSelections[username] = {
     topDriver,
     midfieldDriver,
@@ -201,16 +193,13 @@ app.post('/select-drivers', (req, res) => {
     totalPoints: 0
   };
   
-  // Aktualizuj sumaryczne punkty użytkownika
   updateUserPoints(username);
   
-  // Zapisz dane
   saveData();
   
   res.redirect('/leaderboard');
 });
 
-// Strona do dodawania wyników wyścigu
 app.get('/add-race', (req, res) => {
   res.render('add-race-positions', { 
     drivers: Object.values(drivers).flat().sort(),
@@ -218,12 +207,11 @@ app.get('/add-race', (req, res) => {
   });
 });
 
-// Nowa trasa do zapisywania pozycji wyścigu
 app.post('/save-race-positions', (req, res) => {
-  const { raceName, raceDate, positions, fastestLap } = req.body;
+  const { raceName, raceDate, positions, fastestLap, raceType } = req.body;
   
   // Walidacja danych
-  if (!raceName || !raceDate) {
+  if (!raceName || !raceDate || !raceType) {
     return res.status(400).json({ error: 'Brakujące dane wyścigu' });
   }
   
@@ -243,7 +231,8 @@ app.post('/save-race-positions', (req, res) => {
     name: raceName,
     date: raceDate,
     positions: formattedPositions,
-    fastestLap: fastestLap || null
+    fastestLap: fastestLap || null,
+    type: raceType // Dodajemy typ wyścigu
   };
   
   // Dodaj wyścig do historii
@@ -258,16 +247,16 @@ app.post('/save-race-positions', (req, res) => {
     // Podstawowe punkty za pozycję (tylko dla podium)
     racePoints[driver] = position <= 3 ? pointsSystem[position] : 0;
     
-    // Sprawdź, czy kierowca jest w top 10
-    const isInTop10 = position <= 10;
+    // Sprawdź, czy kierowca jest w punktowanej strefie (zależnie od typu wyścigu)
+    const isInPointsZone = raceType === 'sprint' ? position <= 8 : position <= 10;
     
-    // Dodatkowy punkt dla kierowców z kategorii "Midfield Drivers" za ukończenie w top 10
-    if (isInTop10 && drivers["Midfield Drivers"].includes(driver)) {
+    // Dodatkowy punkt dla kierowców z kategorii "Midfield Drivers" za ukończenie w strefie punktowej
+    if (isInPointsZone && drivers["Midfield Drivers"].includes(driver)) {
       racePoints[driver] += 1;
     }
     
-    // Dodatkowe 2 punkty dla kierowców z kategorii "Rookies" za ukończenie w top 10
-    if (isInTop10 && drivers["Rookies"].includes(driver)) {
+    // Dodatkowe 2 punkty dla kierowców z kategorii "Rookies" za ukończenie w strefie punktowej
+    if (isInPointsZone && drivers["Rookies"].includes(driver)) {
       racePoints[driver] += 2;
     }
     
@@ -396,6 +385,7 @@ app.get('/race-calendar', async (req, res) => {
 // Dodaj route do pobierania wyników wyścigu
 app.get('/fetch-race-results/:year/:round', async (req, res) => {
   const { year, round } = req.params;
+  const raceType = req.query.type || 'grandprix'; // Dodaj parametr typu wyścigu
   
   try {
     const response = await axios.get(`https://ergast.com/api/f1/${year}/${round}/results.json`);
@@ -445,7 +435,8 @@ app.get('/fetch-race-results/:year/:round', async (req, res) => {
         name: raceName,
         date: raceDate,
         positions: positions,
-        fastestLap: fastestLapDriverName
+        fastestLap: fastestLapDriverName,
+        type: raceType // Dodajemy typ wyścigu
       };
       
       // Dodaj wyścig do historii
@@ -460,16 +451,16 @@ app.get('/fetch-race-results/:year/:round', async (req, res) => {
         // Podstawowe punkty za pozycję (tylko dla podium)
         racePoints[driver] = position <= 3 ? pointsSystem[position] : 0;
         
-        // Sprawdź, czy kierowca jest w top 10
-        const isInTop10 = position <= 10;
+        // Sprawdź, czy kierowca jest w strefie punktowej (zależnie od typu wyścigu)
+        const isInPointsZone = raceType === 'sprint' ? position <= 8 : position <= 10;
         
-        // Dodatkowy punkt dla kierowców z kategorii "Midfield Drivers" za ukończenie w top 10
-        if (isInTop10 && drivers["Midfield Drivers"].includes(driver)) {
+        // Dodatkowy punkt dla kierowców z kategorii "Midfield Drivers" za ukończenie w strefie punktowej
+        if (isInPointsZone && drivers["Midfield Drivers"].includes(driver)) {
           racePoints[driver] += 1;
         }
         
-        // Dodatkowe 2 punkty dla kierowców z kategorii "Rookies" za ukończenie w top 10
-        if (isInTop10 && drivers["Rookies"].includes(driver)) {
+        // Dodatkowe 2 punkty dla kierowców z kategorii "Rookies" za ukończenie w strefie punktowej
+        if (isInPointsZone && drivers["Rookies"].includes(driver)) {
           racePoints[driver] += 2;
         }
         
@@ -492,7 +483,7 @@ app.get('/fetch-race-results/:year/:round', async (req, res) => {
       
       res.json({ 
         success: true, 
-        message: `Załadowano wyniki wyścigu: ${raceName} z nowym systemem punktacji`,
+        message: `Załadowano wyniki ${raceType === 'sprint' ? 'sprintu' : 'wyścigu'}: ${raceName} z nowym systemem punktacji`,
         racePoints
       });
     } else {
@@ -539,17 +530,21 @@ app.get('/drivers/:season', async (req, res) => {
 });
 
 // Konfiguracja HTTPS
-const httpsOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/f1insider.security-eng.pl/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/f1insider.security-eng.pl/fullchain.pem')
-};
+try {
+  const httpsOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/f1insider.security-eng.pl/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/f1insider.security-eng.pl/fullchain.pem')
+  };
 
-// Uruchom serwer HTTP, który przekierowuje na HTTPS
+  // Uruchom serwer HTTPS
+  https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
+    console.log(`Serwer HTTPS uruchomiony na porcie ${HTTPS_PORT}`);
+  });
+} catch (err) {
+  console.log('Nie udało się uruchomić serwera HTTPS. Uruchamianie tylko HTTP.');
+}
+
+// Uruchom serwer HTTP
 app.listen(PORT, () => {
-  console.log(`Serwer HTTP uruchomiony na porcie ${PORT} (tylko do przekierowania)`);
-});
-
-// Uruchom serwer HTTPS
-https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
-  console.log(`Serwer HTTPS uruchomiony na porcie ${HTTPS_PORT}`);
+  console.log(`Serwer HTTP uruchomiony na porcie ${PORT}`);
 });

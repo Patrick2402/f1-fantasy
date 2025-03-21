@@ -1,129 +1,145 @@
 <%- include('partials/header', { 
-    title: 'Historia wyścigów', 
-    subtitle: 'Wyniki wszystkich rozegranych wyścigów',
-    currentPage: 'race-results'
-  }) %>
-  
-  <div class="container">
-    <% if (races.length === 0) { %>
-      <div class="alert alert-info text-center">
-        <h4>Brak danych o wyścigach</h4>
-        <p>Dodaj swój pierwszy wyścig, aby zobaczyć wyniki.</p>
+  title: 'Wyniki wyścigów', 
+  subtitle: 'Historia wyścigów i przyznanych punktów',
+  currentPage: 'race-results'
+}) %>
+
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Historia wyścigów</h4>
       </div>
-    <% } else { %>
-      <% races.forEach(race => { %>
-        <div class="race-container">
-          <div class="race-header">
-            <h3><%= race.name %></h3>
-            <span class="race-date"><%= new Date(race.date).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+      <div class="card-body">
+        <% if (races.length === 0) { %>
+          <div class="alert alert-info">
+            Nie dodano jeszcze żadnych wyścigów.
           </div>
-          
-          <table class="race-results-table">
-            <thead>
-              <tr>
-                <th>Poz.</th>
-                <th>Kierowca</th>
-                <th>Kategoria</th>
-                <th>Punkty</th>
-                <th>Szczegóły punktacji</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% 
-                // Przekształć wyniki wyścigu z obiektu na tablicę
-                const raceResults = [];
-                Object.keys(race.positions).forEach(driver => {
-                  const position = race.positions[driver];
-                  if (position) {
-                    let category = "";
-                    let categoryClass = "";
-                    if (drivers["Top Drivers"].includes(driver)) {
-                      category = "Top Drivers";
-                      categoryClass = "category-top";
-                    }
-                    else if (drivers["Midfield Drivers"].includes(driver)) {
-                      category = "Midfield Drivers";
-                      categoryClass = "category-midfield";
-                    }
-                    else if (drivers["Rookies"].includes(driver)) {
-                      category = "Rookies";
-                      categoryClass = "category-rookie";
-                    }
-                    
-                    // Oblicz punkty za ten wyścig
-                    let points = 0;
-                    if (position <= 3) points += pointsSystem[position];
-                    
-                    // Dodatkowe punkty za kategorie
-                    let bonusPoints = 0;
-                    const isInTop10 = position <= 10;
-                    
-                    if (isInTop10 && category === "Midfield Drivers") bonusPoints += 1;
-                    if (isInTop10 && category === "Rookies") bonusPoints += 2;
-                    
-                    // Punkt za najszybsze okrążenie
-                    const fastestLapPoint = (race.fastestLap === driver) ? 1 : 0;
-                    
-                    const totalPoints = points + bonusPoints + fastestLapPoint;
-                    
-                    raceResults.push({
-                      driver,
-                      position,
-                      category,
-                      categoryClass,
-                      points: totalPoints,
-                      details: {
-                        positionPoints: points,
-                        bonusPoints,
-                        fastestLap: fastestLapPoint
-                      },
-                      hasFastestLap: race.fastestLap === driver
-                    });
-                  }
-                });
-                
-                // Sortuj wyniki według pozycji
-                raceResults.sort((a, b) => a.position - b.position);
-              %>
-              
-              <% if (raceResults.length === 0) { %>
-                <tr class="no-result-row">
-                  <td colspan="5">Brak wyników dla tego wyścigu</td>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Nazwa wyścigu</th>
+                  <th>Data</th>
+                  <th>Typ</th>
+                  <th>Zwycięzca</th>
+                  <th>Najszybsze okrążenie</th>
+                  <th>Szczegóły</th>
                 </tr>
-              <% } else { %>
-                <% raceResults.forEach(result => { %>
-                  <tr class="position-<%= result.position %> position-row-<%= result.position <= 3 ? result.position : '' %>">
-                    <td class="position-cell"><%= result.position %></td>
-                    <td class="driver-cell">
-                      <%= result.driver %>
-                      <% if (result.hasFastestLap) { %>
-                        <span class="fastest-lap-indicator">FL</span>
-                      <% } %>
+              </thead>
+              <tbody>
+                <% races.forEach(race => { %>
+                  <tr>
+                    <td><%= race.name %></td>
+                    <td><%= new Date(race.date).toLocaleDateString() %></td>
+                    <td><%= race.type === 'sprint' ? 'Sprint' : 'Grand Prix' %></td>
+                    <td>
+                      <% 
+                        let winner = null;
+                        if (race.positions) {
+                          Object.entries(race.positions).forEach(([driver, position]) => {
+                            if (position === 1) winner = driver;
+                          });
+                        }
+                      %>
+                      <%= winner || 'Brak danych' %>
                     </td>
-                    <td class="category-cell <%= result.categoryClass %>"><%= result.category %></td>
-                    <td class="points-cell"><%= result.points %></td>
-                    <td class="points-details-cell">
-                      <% if (result.details.positionPoints > 0) { %>
-                        <%= result.details.positionPoints %> za pozycję
-                      <% } %>
-                      <% if (result.details.bonusPoints > 0) { %>
-                        + <%= result.details.bonusPoints %> bonus za kategorię
-                      <% } %>
-                      <% if (result.details.fastestLap > 0) { %>
-                        + <%= result.details.fastestLap %> za najszybsze okrążenie
-                      <% } %>
-                      <% if (result.details.positionPoints === 0 && result.details.bonusPoints === 0 && result.details.fastestLap === 0) { %>
-                        -
-                      <% } %>
+                    <td><%= race.fastestLap || 'Brak danych' %></td>
+                    <td>
+                      <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#details-<%= race.id %>" aria-expanded="false" aria-controls="details-<%= race.id %>">
+                        Pokaż szczegóły
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="collapse" id="details-<%= race.id %>">
+                    <td colspan="6">
+                      <div class="p-3">
+                        <h5>Wyniki wyścigu</h5>
+                        <% if (race.positions && Object.keys(race.positions).length > 0) { %>
+                          <div class="table-responsive">
+                            <table class="table table-sm">
+                              <thead>
+                                <tr>
+                                  <th>Pozycja</th>
+                                  <th>Kierowca</th>
+                                  <th>Kategoria</th>
+                                  <th>Punkty</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% 
+                                  // Sortowanie kierowców według pozycji
+                                  const sortedDrivers = Object.entries(race.positions)
+                                    .sort((a, b) => a[1] - b[1])
+                                    .map(([driver, position]) => ({ driver, position }));
+                                  
+                                  sortedDrivers.forEach(entry => {
+                                    let category = "";
+                                    if (drivers["Top Drivers"].includes(entry.driver)) {
+                                      category = "Top Driver";
+                                    } else if (drivers["Midfield Drivers"].includes(entry.driver)) {
+                                      category = "Midfield Driver";
+                                    } else if (drivers["Rookies"].includes(entry.driver)) {
+                                      category = "Rookie";
+                                    }
+                                    
+                                    // Obliczanie punktów
+                                    let points = 0;
+                                    
+                                    // Punkty za podium
+                                    if (entry.position <= 3) {
+                                      points += pointsSystem[entry.position];
+                                    }
+                                    
+                                    // Punkty za miejsce w strefie punktowej (w zależności od typu wyścigu)
+                                    const isInPointsZone = race.type === 'sprint' ? entry.position <= 8 : entry.position <= 10;
+                                    
+                                    // Dodatkowe punkty dla kategorii
+                                    if (isInPointsZone) {
+                                      if (category === "Midfield Driver") {
+                                        points += 1;
+                                      } else if (category === "Rookie") {
+                                        points += 2;
+                                      }
+                                    }
+                                    
+                                    // Punkt za najszybsze okrążenie
+                                    if (race.fastestLap === entry.driver) {
+                                      points += 1;
+                                    }
+                                %>
+                                  <tr>
+                                    <td><%= entry.position %></td>
+                                    <td><%= entry.driver %></td>
+                                    <td><%= category %></td>
+                                    <td>
+                                      <%= points %> 
+                                      <% if (race.fastestLap === entry.driver) { %>
+                                        <span class="badge bg-success">+1 FL</span>
+                                      <% } %>
+                                    </td>
+                                  </tr>
+                                <% }); %>
+                              </tbody>
+                            </table>
+                          </div>
+                        <% } else { %>
+                          <div class="alert alert-warning">
+                            Brak szczegółowych danych o pozycjach kierowców.
+                          </div>
+                        <% } %>
+                      </div>
                     </td>
                   </tr>
                 <% }); %>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      <% }); %>
-    <% } %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
   </div>
-  
-  <%- include('partials/footer') %>
+</div>
+
+<%- include('partials/footer') %>
